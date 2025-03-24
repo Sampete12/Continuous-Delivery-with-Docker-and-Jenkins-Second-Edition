@@ -35,9 +35,9 @@ pipeline {
                     sh "cd Chapter08/sample1 && ./gradlew jacocoTestReport || true"
 
                     if (testResult == 0) {
-                        echo "✅ Tests pass!"
+                        echo "Tests pass!"
                     } else {
-                        echo "❌ Tests fail!"
+                        echo "Tests fail!"
                     }
                 }
             }
