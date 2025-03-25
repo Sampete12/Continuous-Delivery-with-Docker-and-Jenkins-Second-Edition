@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY = "https://localhost:5001" // Replace with actual registry address
-        REGISTRY_HOST = "localhost:5001" // Replace with actual registry address
+        REGISTRY = "https://localhost:5001"
+        REGISTRY_HOST = "localhost:5001"
         PROJECT_DIR = "Chapter08/sample1"
         IMAGE_NAME = ""
         IMAGE_VERSION = ""
@@ -44,6 +44,7 @@ pipeline {
             when { branch 'feature' }
             steps {
                 sh """
+                cd Chapter08/sample1
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew checkstyleTest 
@@ -56,6 +57,7 @@ pipeline {
             when { branch 'playground' }
             steps {
                 sh """
+                cd Chapter08/sample1
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew checkstyleTest 
