@@ -1,13 +1,6 @@
 pipeline {
-    agent{
-        docker {
-            image 'dlambrig/gradle-agent:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-            alwaysPull true
-            customWorkspace '/home/Jenkins/.gradle/workspace'
-        }
-    }
-
+    agent any
+    
     environment {
         REGISTRY = "https://localhost:5001" // Replace with actual registry address
         REGISTRY_HOST = "localhost:5001" // Replace with actual registry address
@@ -86,21 +79,22 @@ pipeline {
                 expression { env.BRANCH_NAME != 'playground' }
             }
             steps {
-                if (env.BRANCH_NAME == 'main') {
-                    env.IMAGE_NAME = "calculator"
-                    env.IMAGE_VERSION = "1.0"
-                } else if (env.BRANCH_NAME == 'feature') {
-                    env.IMAGE_NAME = "calculator-feature"
-                    env.IMAGE_VERSION = "0.1"
-                }
+                script{
+                    if (env.BRANCH_NAME == 'main') {
+                        env.IMAGE_NAME = "calculator"
+                        env.IMAGE_VERSION = "1.0"
+                    } else if (env.BRANCH_NAME == 'feature') {
+                        env.IMAGE_NAME = "calculator-feature"
+                        env.IMAGE_VERSION = "0.1"
+                    }
 
-                sh """
-                set -e
-                cd $Chapter08/sample1
-                ./gradlew build
-                docker build -t ${IMAGE_NAME}:${IMAGE_VERSION}              
-                """         
-                
+                    sh """
+                    set -e
+                    cd $Chapter08/sample1
+                    ./gradlew build
+                    docker build -t ${IMAGE_NAME}:${IMAGE_VERSION}              
+                    """         
+                }
             }
         }
 
