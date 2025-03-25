@@ -21,7 +21,7 @@ pipeline {
                 sh """
                 set -e
                 cd Chapter08/sample1
-                chmod +x Chapter08/sample1/gradlew
+                chmod +x gradlew
                 """
             }
         }
@@ -32,7 +32,7 @@ pipeline {
             steps {
                 sh """
                 cd Chapter08/sample1
-                chmod +x Chapter08/sample1/gradlew
+                chmod +x gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew jacocoTestCoverageVerification
@@ -48,7 +48,7 @@ pipeline {
             steps {
                 sh """
                 cd Chapter08/sample1
-                chmod +x Chapter08/sample1/gradlew
+                chmod +x gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew checkstyleTest 
@@ -62,7 +62,7 @@ pipeline {
             steps {
                 sh """
                 cd Chapter08/sample1
-                chmod +x Chapter08/sample1/gradlew
+                chmod +x gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew checkstyleTest 
