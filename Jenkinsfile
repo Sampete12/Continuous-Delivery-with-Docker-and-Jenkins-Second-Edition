@@ -19,6 +19,8 @@ pipeline {
                 git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git',
                     branch: env.BRANCH_NAME
                 sh """
+                set -e
+                cd Chapter08/sample1
                 chmod +x Chapter08/sample1/gradlew
                 """
             }
@@ -30,6 +32,7 @@ pipeline {
             steps {
                 sh """
                 cd Chapter08/sample1
+                chmod +x Chapter08/sample1/gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew jacocoTestCoverageVerification
@@ -45,6 +48,7 @@ pipeline {
             steps {
                 sh """
                 cd Chapter08/sample1
+                chmod +x Chapter08/sample1/gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew checkstyleTest 
@@ -58,6 +62,7 @@ pipeline {
             steps {
                 sh """
                 cd Chapter08/sample1
+                chmod +x Chapter08/sample1/gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
                 ./gradlew checkstyleTest 
@@ -94,24 +99,32 @@ pipeline {
 
                     sh """
                     set -e
-                    cd $Chapter08/sample1
-                    ./gradlew build
-                    docker build -t ${IMAGE_NAME}:${IMAGE_VERSION}              
+                    cd Chapter08/sample1
+                    ./gradlew build              
                     """         
                 }
             }
         }
 
-        stage('Push Container') {
+        stage('Login to Registry and build image') {
             when {
                 expression { env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'feature' }
             }
             steps {
-                sh """
-                docker tag ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}
-                docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}
-                """
+                script {
+                    withCredentials([usernamePassword(crednetialsId: 'docker-registry', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            set -e
+                            cd Chapter08/sample1
+                            echo "\$DOCKER_PASS" | docker login \$REGISTRY -u \$DOCKER_USER --password-stdin
+                            docker build -t ${IMAGE_NAME} .
+                            docker tag ${IMAGE_NAME} ${REGISTRY_HOST}/${IMAGE_NAME}:${IMAGE_TAG}
+                            docker push ${REGISTRY_HOST}/${IMAGE_NAME}:${IMAGE_TAG}
+                            
+                        """
+                    }
                 
+                }    
             }
         }
     }
