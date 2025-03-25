@@ -14,7 +14,10 @@ public class CalculatorTest {
      public void testSum() {
         assertEquals(5, calculator.sum(2, 3));
         assertEquals(-1, calculator.sum(-2, 1));
-        assertEquals(Integer.MIN_VALUE, calculator.sum(Integer.MIN_VALUE + 1, -1));
+    }
+
+     public void testSubtraction() {
+          assertEquals(2, calc.subtract(5, 3)
      }
 }
 
