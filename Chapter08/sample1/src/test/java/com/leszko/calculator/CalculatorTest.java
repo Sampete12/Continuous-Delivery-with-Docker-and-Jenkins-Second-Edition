@@ -7,15 +7,15 @@ import static org.junit.Assert.assertEquals;
  * This is a test class for the Calculator class.  It contains various
  * test methods to verify the functionality of the Calculator.
  */
-public class CalculatorTest {
-     private Calculator calculator = new Calculator();
+@Test
+public void testSumWithZero() {
+    assertEquals(3, calculator.sum(3, 0));
+    assertEquals(0, calculator.sum(0, 0));
+}
 
-     @Test
-     public void testSum() {
-        assertEquals(5, calculator.sum(2, 3));
-        assertEquals(-1, calculator.sum(-2, 1));
-        assertEquals(Integer.MIN_VALUE, calculator.sum(Integer.MIN_VALUE + 1, -1));
-     }
+@Test
+public void testSumWithNegativeNumbers() {
+    assertEquals(-5, calculator.sum(-2, -3));
 }
 
 
