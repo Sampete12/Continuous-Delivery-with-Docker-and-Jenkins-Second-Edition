@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     environment {
         REGISTRY = "https://localhost:5001" // Replace with actual registry address
         REGISTRY_HOST = "localhost:5001" // Replace with actual registry address
@@ -17,14 +17,16 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git',
-                    branch: 'main'
-                sh "chmod +x Chapter08/sample1/gradlew"
+                    branch: env.BRANCH_NAME
+                sh """
+                chmod +x Chapter08/sample1/gradlew
+                """
             }
         }
 
         stage('Run Tests') {
             
-            when { branch 'master' }
+            when { branch 'main' }
             steps {
                 sh """
                 cd Chapter08/sample1
