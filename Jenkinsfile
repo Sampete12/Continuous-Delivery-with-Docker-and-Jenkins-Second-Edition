@@ -1,48 +1,74 @@
 pipeline {
-    agent any
+    agent{
+        docker {
+            image 'dlambrig/gradle-agent:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+            alwaysPull true
+            customWorkspace '/home/Jenkins/.gradle/workspace'
+        }
+    }
+
+    environment {
+        REGISTRY = "https://localhost:5001" // Replace with actual registry address
+        REGISTRY_HOST = "localhost:5001" // Replace with actual registry address
+        PROJECT_DIR = "Chapter08/sample1"
+        IMAGE_NAME = ""
+        IMAGE_VERSION = ""
+    }
+
+    triggers {
+        pollSCM('* * * * *')
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
                 git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git',
-                    branch: env.BRANCH_NAME
-                echo "Running pipeline on branch: ${env.BRANCH_NAME}"
+                    branch: 'main'
                 sh "chmod +x Chapter08/sample1/gradlew"
             }
         }
-        
+
         stage('Run Tests') {
+            
+            when { branch 'master' }
             steps {
-                script {
-                    def testResult = 0
-                    if (env.BRANCH_NAME == 'main') {
-                        echo "Running all tests including CodeCoverage..."
-                        testResult = sh(script: """
-                            cd Chapter08/sample1
-                            ./gradlew test || exit 1
-                            ./gradlew jacocoTestReport || exit 1
-                        """, returnStatus: true)
-                    } else {
-                        echo "Running all tests EXCEPT CodeCoverage..."
-                        testResult = sh(script: """
-                            cd Chapter08/sample1
-                            ./gradlew test || exit 1
-                            ./gradlew integrationTest || exit 1
-                            ./gradlew checkstyle || exit 1
-                        """, returnStatus: true)
-                    }
-
-                    // Generate JaCoCo report no matter what
-                    sh "cd Chapter08/sample1 && ./gradlew jacocoTestReport || true"
-
-                    if (testResult == 0) {
-                        echo "Tests pass!"
-                    } else {
-                        echo "Tests fail!"
-                    }
-                }
+                sh """
+                cd Chapter08/sample1
+                ./gradlew test
+                ./gradlew jacocoTestReport
+                ./gradlew jacocoTestCoverageVerification
+                ./gradlewcheckstyleTest
+                """
+ 
             }
+    
+        }
+ 
+        stage('Feature Tests') {
+            when { branch 'feature' }
+            steps {
+                sh """
+                ./gradlew test
+                ./gradlew jacocoTestReport
+                ./gradlew checkstyleTest 
+                """
+            }
+ 
         }
         
+        stage('Playground Tests') {
+            when { branch 'playground' }
+            steps {
+                sh """
+                ./gradlew test
+                ./gradlew jacocoTestReport
+                ./gradlew checkstyleTest 
+                """
+            }
+ 
+        }
+
         stage('Publish Reports') {
             steps {
                 publishHTML (
@@ -52,6 +78,42 @@ pipeline {
                         reportName: "JaCoCo Report"
                     ]
                 )
+            }
+        }
+
+        stage('Build Container') {
+            when {
+                expression { env.BRANCH_NAME != 'playground' }
+            }
+            steps {
+                if (env.BRANCH_NAME == 'main') {
+                    env.IMAGE_NAME = "calculator"
+                    env.IMAGE_VERSION = "1.0"
+                } else if (env.BRANCH_NAME == 'feature') {
+                    env.IMAGE_NAME = "calculator-feature"
+                    env.IMAGE_VERSION = "0.1"
+                }
+
+                sh """
+                set -e
+                cd $Chapter08/sample1
+                ./gradlew build
+                docker build -t ${IMAGE_NAME}:${IMAGE_VERSION}              
+                """         
+                
+            }
+        }
+
+        stage('Push Container') {
+            when {
+                expression { env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'feature' }
+            }
+            steps {
+                sh """
+                docker tag ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}
+                docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}
+                """
+                
             }
         }
     }
