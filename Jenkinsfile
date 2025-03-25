@@ -16,8 +16,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git',
-                    branch: env.BRANCH_NAME
+                git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: env.BRANCH_NAME
                 sh """
                 set -e
                 cd Chapter08/sample1
@@ -44,6 +43,7 @@ pipeline {
         }
  
         stage('Feature Tests') {
+            
             when { branch 'feature' }
             steps {
                 sh """
@@ -51,13 +51,15 @@ pipeline {
                 chmod +x gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
-                ./gradlew checkstyleTest 
+                ./gradlewcheckstyleTest
                 """
-            }
  
+            }
+    
         }
         
         stage('Playground Tests') {
+            
             when { branch 'playground' }
             steps {
                 sh """
@@ -65,10 +67,11 @@ pipeline {
                 chmod +x gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
-                ./gradlew checkstyleTest 
+                ./gradlewcheckstyleTest
                 """
-            }
  
+            }
+    
         }
 
         stage('Publish Reports') {
