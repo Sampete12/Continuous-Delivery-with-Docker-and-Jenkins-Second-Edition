@@ -44,6 +44,7 @@ pipeline {
         }
  
         stage('Feature Tests') {
+            
             when { branch 'feature' }
             steps {
                 sh """
@@ -51,13 +52,15 @@ pipeline {
                 chmod +x gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
-                ./gradlew checkstyleTest 
+                ./gradlewcheckstyleTest
                 """
-            }
  
+            }
+    
         }
         
         stage('Playground Tests') {
+            
             when { branch 'playground' }
             steps {
                 sh """
@@ -65,10 +68,11 @@ pipeline {
                 chmod +x gradlew
                 ./gradlew test
                 ./gradlew jacocoTestReport
-                ./gradlew checkstyleTest 
+                ./gradlewcheckstyleTest
                 """
-            }
  
+            }
+    
         }
 
         stage('Publish Reports') {
