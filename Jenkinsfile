@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git pull: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: env.BRANCH_NAME
+                git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: env.BRANCH_NAME
                 sh """
                 set -e
                 cd Chapter08/sample1
