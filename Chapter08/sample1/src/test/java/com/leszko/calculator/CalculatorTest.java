@@ -17,7 +17,7 @@ public class CalculatorTest {
     }
 
      public void testSubtraction() {
-          assertEquals(2, calc.subtract(5, 3)
+          assertEquals(2, calc.subtract(5, 3));
      }
 }
 
