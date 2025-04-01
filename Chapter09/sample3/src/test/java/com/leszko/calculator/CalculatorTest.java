@@ -2,6 +2,9 @@ package com.leszko.calculator;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * This class contains unit tests for the Calculator class.
+ */
 public class CalculatorTest {
      private Calculator calculator = new Calculator();
 
