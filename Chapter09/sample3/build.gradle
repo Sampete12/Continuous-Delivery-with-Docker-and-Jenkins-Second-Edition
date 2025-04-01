@@ -18,6 +18,11 @@ group = 'com.leszko'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
+// Set specific JaCoCo version compatible with Java 8
+jacoco {
+    toolVersion = "0.8.5"
+}
+
 repositories {
     mavenCentral()
 }
@@ -31,6 +36,15 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation("io.cucumber:cucumber-java:4.2.6")
     testImplementation("io.cucumber:cucumber-junit:4.2.6")
+}
+
+// Configure JaCoCo test report
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
 }
 
 jacocoTestCoverageVerification {
@@ -47,22 +61,45 @@ checkstyle {
     checkstyleTest.enabled = false
 }
 
+// Create a completely separate acceptance test task without any JaCoCo instrumentation
 task acceptanceTest(type: Test) {
     include '**/acceptance/**'
     systemProperties System.getProperties()
+    
+    // Force disable JaCoCo for this task
+    jacoco {
+        enabled = false
+    }
+    
+    // Explicitly exclude JaCoCo agent from this test run
+    doFirst {
+        jvmArgs = ['-Djacoco.skip=true', '-Djacoco.enabled=false']
+    }
+    
+    // Override the JVM arguments to remove any JaCoCo agent settings
+    jvmArgumentProviders.removeAll { it.toString().contains('jacoco') }
 }
 
 task smokeTest(type: Test) {
     include '**/acceptance/**'
     systemProperties System.getProperties()
+    
+    // Disable JaCoCo for smoke tests 
+    jacoco {
+        enabled = false
+    }
+    
+    doFirst {
+        jvmArgs = ['-Djacoco.skip=true', '-Djacoco.enabled=false']
+    }
+    jvmArgumentProviders.removeAll { it.toString().contains('jacoco') }
 }
 
-tasks.named('test') {
+test {
     exclude '**/acceptance/**'
     exclude '**/smoke/**'
-    jacoco {
-        excludes = ['java.lang.UnknownError']
-    }
+    
+    finalizedBy jacocoTestReport
 }
 
 flyway {
