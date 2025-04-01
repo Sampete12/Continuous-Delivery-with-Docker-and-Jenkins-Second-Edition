@@ -33,6 +33,13 @@ dependencies {
 	testImplementation("io.cucumber:cucumber-junit:4.2.6")
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+    jacoco {
+        excludes = ['java.lang.UnknownError']
+    }
+}
+
 jacocoTestCoverageVerification {
 	violationRules {
 		rule {
