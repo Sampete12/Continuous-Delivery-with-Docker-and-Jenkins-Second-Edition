@@ -45,10 +45,3 @@ public class StepDefinitions {
     public void i_receive_as_a_result(String expectedResult) throws Throwable {
         assertEquals(expectedResult, result);
     }
-
-    @Then("^I receive (.*) as the quotient$")
-    public void i_receive_as_a_result(String expectedQuotient) throws Throwable {
-        assertEquals(expectedQuotient, result);
-    }
-        
-}
