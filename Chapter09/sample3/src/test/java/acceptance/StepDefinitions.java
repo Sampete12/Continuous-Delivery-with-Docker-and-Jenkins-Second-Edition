@@ -30,7 +30,7 @@ public class StepDefinitions {
     }
 
     @When("^the calculator divides them$")
-    public void the_calculator_divides_them() {
+    public void the_calculator_divides_them() throws Throwable {
         String url = String.format("%s/divide?a=%s&b=%s", server, a, b);
         result = restTemplate.getForObject(url, String.class);
     }
@@ -41,7 +41,7 @@ public class StepDefinitions {
     }
 
     @Then("^I receive (.*) as the quotient$")
-    public void i_receive_as_a_result(String expectedQuotient) {
+    public void i_receive_as_a_result(String expectedQuotient) throws Throwable {
         assertEquals(expectedQuotient, result);
     }
         
