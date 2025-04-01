@@ -23,6 +23,12 @@ public class StepDefinitions {
         this.b = b;
     }
 
+    @Given("^I have dividend and divisor: (.*) and (.*)$")
+    public void i_have_dividend_and_divisor(String a, String b) {
+        this.a = a;
+        this.b = b;
+    }
+
     @When("^the calculator sums them$")
     public void the_calculator_sums_them() throws Throwable {
         String url = String.format("%s/sum?a=%s&b=%s", server, a, b);
