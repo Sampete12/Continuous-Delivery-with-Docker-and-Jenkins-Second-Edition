@@ -1,132 +1,40 @@
 pipeline {
-    agent any
-
+    agent {
+        label 'docker-agent'
+    }
+    
     environment {
         REGISTRY = "https://localhost:5001"
         REGISTRY_HOST = "localhost:5001"
-        PROJECT_DIR = "Chapter08/sample1"
-        IMAGE_NAME = ""
-        IMAGE_VERSION = ""
     }
-
-    triggers {
-        pollSCM('* * * * *')
-    }
-
+    
     stages {
-        stage('Checkout Code') {
-            steps {
-                git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: env.BRANCH_NAME
-                sh """
-                cd Chapter08/sample1
-                chmod +x gradlew
-                """
-            }
-        }
-
-        stage('Run Tests') {
-            
-            when { branch 'main' }
-            steps {
-                sh """
-                cd Chapter08/sample1
-                chmod +x gradlew
-                ./gradlew test
-                ./gradlew jacocoTestReport
-                ./gradlew jacocoTestCoverageVerification
-                ./gradlewcheckstyleTest
-                """
- 
-            }
-    
-        }
- 
-        stage('Feature Tests') {
-            
-            when { branch 'feature' }
-            steps {
-                sh """
-                cd Chapter08/sample1
-                chmod +x gradlew
-                ./gradlew test
-                ./gradlew jacocoTestReport
-                ./gradlewcheckstyleTest
-                """
- 
-            }
-    
-        }
         
-        stage('Playground Tests') {
-            
-            when { branch 'playground' }
+        stage('Run tests and generate reports') {
             steps {
-                sh """
-                cd Chapter08/sample1
-                chmod +x gradlew
-                ./gradlew test
-                ./gradlew jacocoTestReport
-                ./gradlewcheckstyleTest
-                """
- 
-            }
-    
-        }
-
-        stage('Publish Reports') {
-            steps {
-                publishHTML (
-                    target: [
-                        reportDir: 'Chapter08/sample1/build/reports/tests/test',
-                        reportFiles: 'index.html',
-                        reportName: "JaCoCo Report"
-                    ]
-                )
-            }
-        }
-
-        stage('Build Container') {
-            when {
-                expression { env.BRANCH_NAME != 'playground' }
-            }
-            steps {
-                script{
-                    if (env.BRANCH_NAME == 'main') {
-                        env.IMAGE_NAME = "calculator"
-                        env.IMAGE_VERSION = "1.0"
-                    } else if (env.BRANCH_NAME == 'feature') {
-                        env.IMAGE_NAME = "calculator-feature"
-                        env.IMAGE_VERSION = "0.1"
-                    }
-
-                    sh """
-                    set -e
-                    cd Chapter08/sample1
-                    ./gradlew build              
-                    """         
-                }
-            }
-        }
-
-        stage('Login to Registry and build image') {
-            when {
-                expression { env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'feature' }
-            }
-            steps {
-                script {
-                    withCredentials([usernamePassword(crednetialsId: 'docker-registry', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh """
-                            set -e
-                            cd Chapter08/sample1
-                            echo "\$DOCKER_PASS" | docker login \$REGISTRY -u \$DOCKER_USER --password-stdin
-                            docker build -t ${IMAGE_NAME} .
-                            docker tag ${IMAGE_NAME} ${REGISTRY_HOST}/${IMAGE_NAME}:${IMAGE_TAG}
-                            docker push ${REGISTRY_HOST}/${IMAGE_NAME}:${IMAGE_TAG}
-                            
-                        """
-                    }
-                
-                }    
+                sh '''
+                pwd
+                '''
+            git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch: 'main'
+            sh '''
+             whoami
+             sudo chown -R jenkins:jenkins ~/.kube
+             ls -la ~/.kube
+             cd Chapter08/sample1
+             export KUBECONFIG=/root/.kube/config.modified
+             kubectl --insecure-skip-tls-verify apply -f calculator.yaml
+             kubectl --insecure-skip-tls-verify apply -f hazelcast.yaml
+             
+             kubectl --insecure-skip-tls-verify get pods
+             
+             echo "$(kubectl get service calculator-service --insecure-skip-tls-verify -o jsonpath='{.spec.clusterIP}') calculator-service" >> /etc/hosts
+             
+             curl "calculator-service:8080/sum?a=1&b=2"
+             
+             kubectl --insecure-skip-tls-verify delete -f calculator.yaml
+             kubectl --insecure-skip-tls-verify delete -f hazelcast.yaml
+             '''
+             
             }
         }
     }
