@@ -5,7 +5,11 @@ metadata:
   labels:
     app: calculator
 spec:
+<<<<<<< HEAD
   replicas: 3
+=======
+  replicas: 1
+>>>>>>> a42b100c919048b4f9e418b3220d49051041f40d
   selector:
     matchLabels:
       app: calculator
