@@ -12,7 +12,7 @@ pipeline {
         
         stage('Run tests and generate reports') {
             steps {
-                git URL: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'main'
+                git url: 'https://github.com/Sampete12/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'main'
             sh '''
              whoami
              sudo chown -R jenkins:jenkins ~/.kube
