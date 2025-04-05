@@ -23,7 +23,7 @@ pipeline {
              kubectl --insecure-skip-tls-verify apply -f hazelcast.yaml
 
              kubectl --insecure-skip-tls-verify wait --for=condition=ready pod -l app=calculator --timeout=60s
-             sleep 60
+             sleep 30
 
              echo "$(kubectl get service calculator-service --insecure-skip-tls-verify -o jsonpath='{.spec.clusterIP}') calculator-service" >> /etc/hosts
 
