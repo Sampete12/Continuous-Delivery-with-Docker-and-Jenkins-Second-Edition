@@ -21,6 +21,8 @@ pipeline {
              export KUBECONFIG=/root/.kube/config.modified
              kubectl --insecure-skip-tls-verify apply -f calculator.yaml
              kubectl --insecure-skip-tls-verify apply -f hazelcast.yaml
+
+             kubectl --insecure-skip-tls-verify wait --for=condition=ready pod -l app=calculator --timeout=60s
              
              kubectl --insecure-skip-tls-verify get pods
              
