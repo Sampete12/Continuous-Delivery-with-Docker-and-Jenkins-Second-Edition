@@ -24,11 +24,11 @@ pipeline {
 
              kubectl --insecure-skip-tls-verify wait --for=condition=ready pod -l app=calculator --timeout=60s
 
+             echo "$(kubectl get service calculator-service --insecure-skip-tls-verify -o jsonpath='{.spec.clusterIP}') calculator-service" >> /etc/hosts
+
              curl "calculator-service:8080/sum?a=1&b=2"
              
              kubectl --insecure-skip-tls-verify get pods
-             
-             echo "$(kubectl get service calculator-service --insecure-skip-tls-verify -o jsonpath='{.spec.clusterIP}') calculator-service" >> /etc/hosts
              
              kubectl --insecure-skip-tls-verify delete -f calculator.yaml
              kubectl --insecure-skip-tls-verify delete -f hazelcast.yaml
