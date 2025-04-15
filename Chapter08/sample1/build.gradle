@@ -41,6 +41,7 @@ checkstyle {
 task acceptanceTest(type: Test) {
 	include '**/acceptance/**'
 	systemProperties System.getProperties()
+	jacoco.enabled = false
 }
 
 task smokeTest(type: Test) {
